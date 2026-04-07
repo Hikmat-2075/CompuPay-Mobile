@@ -1,5 +1,4 @@
-
-import 'package:compupay_mobile/screens/login/login_screen.dart';
+import 'package:compupay_mobile/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 
@@ -13,11 +12,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }
