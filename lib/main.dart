@@ -1,6 +1,7 @@
 import 'package:compupay_mobile/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
