@@ -1,7 +1,5 @@
-
-import 'package:compupay_mobile/screens/login/login_screen.dart';
+import 'package:compupay_mobile/screens/payslip/payslip_screen.dart';
 import 'package:flutter/material.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +12,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6B3EEA)),
       ),
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: const PayslipScreen(),
     );
   }
 }
