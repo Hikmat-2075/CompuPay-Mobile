@@ -1,52 +1,98 @@
-import 'package:compupay_mobile/screens/login/widgets/email_field.dart';
-import 'package:compupay_mobile/screens/login/widgets/login_button.dart';
-import 'package:compupay_mobile/screens/login/widgets/password_field.dart';
 import 'package:flutter/material.dart';
+import 'package:compupay_mobile/core/controllers/auth_controller.dart';
 
-class LoginForm extends StatelessWidget {
+import 'package:compupay_mobile/screens/login/widgets/email_field.dart';
+import 'package:compupay_mobile/screens/login/widgets/password_field.dart';
+import 'package:compupay_mobile/screens/login/widgets/login_button.dart';
+
+class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
 
   @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  bool isLoading = false;
+
+  late AuthController authController;
+
+  @override
+  void initState() {
+    super.initState();
+    authController = AuthController(context);
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void handleLogin() async {
+
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Email dan password wajib diisi"),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    await authController.login(
+      emailController.text,
+      passwordController.text,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.only(top: 8.5),
       child: SizedBox(
         width: 276,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch, // supaya full width
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const EmailField(),
+
+            EmailField(controller: emailController),
+
             const SizedBox(height: 24),
-            const PasswordField(),
-            const SizedBox(height: 8), // jarak sebelum Forgot Password
+
+            PasswordField(controller: passwordController),
+
+            const SizedBox(height: 8),
+
             Align(
-              alignment: Alignment.centerRight, // teks di kanan
+              alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {
-                  // TODO: navigasi ke halaman reset password
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero, // hilangkan padding default
-                  minimumSize: const Size(0, 20),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  "Forgot Password?",
-                  style: TextStyle(
-                    fontFamily: "Inter",
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    height: 1.43,
-                    color: Color(0xFF6B38D4),
-                  ),
-                ),
+                onPressed: () {},
+                child: const Text("Forgot Password?"),
               ),
             ),
+
             const SizedBox(height: 16),
+
             LoginButton(
-              onPressed: () {
-                // TODO : aksi Login
-              },
+              onPressed: isLoading ? null : handleLogin,
+              isLoading: isLoading,
             ),
           ],
         ),
