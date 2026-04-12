@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class EmailField extends StatelessWidget {
-  const EmailField({super.key});
+  final TextEditingController controller;
+
+  const EmailField({
+    super.key,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +41,8 @@ class EmailField extends StatelessWidget {
               ),
             ),
             child: TextField(
+              controller: controller, // 🔥 INI YANG PENTING
+
               decoration: InputDecoration(
                 hintText: "name@company.com",
                 hintStyle: const TextStyle(

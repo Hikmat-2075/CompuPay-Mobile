@@ -124,7 +124,6 @@ class PayslipScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const _BottomNavBar(),
           ],
         ),
       ),
@@ -513,78 +512,7 @@ class _AnnualSummaryCard extends StatelessWidget {
   }
 }
 
-class _BottomNavBar extends StatelessWidget {
-  const _BottomNavBar();
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
-      ),
-      padding: const EdgeInsets.fromLTRB(8, 10, 8, 14),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
-            _NavItem(icon: Icons.home_outlined, label: 'HOME'),
-            _NavItem(icon: Icons.event_note_outlined, label: 'ATTENDANCE'),
-            _NavItem(
-              icon: Icons.receipt_long_rounded,
-              label: 'PAYSLIP',
-              isActive: true,
-            ),
-            _NavItem(icon: Icons.person_outline_rounded, label: 'PROFILE'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    this.isActive = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    const activeColor = PayslipScreen._primaryPurple;
-    const inactiveColor = Color(0xFF98A2B3);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: isActive ? activeColor : inactiveColor, size: 24),
-        const SizedBox(height: 3),
-        Text(
-          label,
-          style: TextStyle(
-            color: isActive ? activeColor : inactiveColor,
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1,
-          ),
-        ),
-        const SizedBox(height: 2),
-        SizedBox(
-          height: 4,
-          child: isActive
-              ? const Icon(Icons.circle, size: 4, color: activeColor)
-              : null,
-        ),
-      ],
-    );
-  }
-}
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({
