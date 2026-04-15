@@ -4,6 +4,7 @@ import 'package:compupay_mobile/core/controllers/auth_controller.dart';
 import 'package:compupay_mobile/screens/login/widgets/email_field.dart';
 import 'package:compupay_mobile/screens/login/widgets/password_field.dart';
 import 'package:compupay_mobile/screens/login/widgets/login_button.dart';
+import 'package:compupay_mobile/navigation/main_navigation.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -13,7 +14,6 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -35,12 +35,9 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void handleLogin() async {
-
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Email dan password wajib diisi"),
-        ),
+        const SnackBar(content: Text("Email dan password wajib diisi")),
       );
       return;
     }
@@ -49,21 +46,37 @@ class _LoginFormState extends State<LoginForm> {
       isLoading = true;
     });
 
-    await authController.login(
-      emailController.text,
-      passwordController.text,
-    );
+    // ============================
+    // API LOGIN (DI-COMMENT)
+    // ============================
+
+    /*
+  await authController.login(
+    emailController.text,
+    passwordController.text,
+  );
+  */
+
+    // ============================
+    // MOCK LOGIN (langsung pindah page)
+    // ============================
+
+    await Future.delayed(const Duration(seconds: 1));
 
     if (!mounted) return;
 
     setState(() {
       isLoading = false;
     });
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainNavigation()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.only(top: 8.5),
       child: SizedBox(
@@ -71,7 +84,6 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
             EmailField(controller: emailController),
 
             const SizedBox(height: 24),
