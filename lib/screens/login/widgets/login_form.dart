@@ -46,33 +46,31 @@ class _LoginFormState extends State<LoginForm> {
       isLoading = true;
     });
 
-    // ============================
-    // API LOGIN (DI-COMMENT)
-    // ============================
+    try {
+      await authController.login(
+        emailController.text,
+        passwordController.text,
+      );
 
-    /*
-  await authController.login(
-    emailController.text,
-    passwordController.text,
-  );
-  */
+      if (!mounted) return;
 
-    // ============================
-    // MOCK LOGIN (langsung pindah page)
-    // ============================
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (!mounted) return;
-
-    setState(() {
-      isLoading = false;
-    });
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainNavigation()),
-    );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainNavigation(),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
