@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class PasswordField extends StatefulWidget {
-  const PasswordField({super.key});
+  final TextEditingController controller;
+
+  const PasswordField({
+    super.key,
+    required this.controller,
+  });
 
   @override
   State<PasswordField> createState() => _PasswordFieldState();
 }
 
 class _PasswordFieldState extends State<PasswordField> {
-
   bool isHidden = true;
 
   @override
@@ -42,6 +47,8 @@ class _PasswordFieldState extends State<PasswordField> {
               ),
             ),
             child: TextField(
+              controller: widget.controller, // 🔥 FIX INI
+
               obscureText: isHidden,
               decoration: InputDecoration(
                 hintText: "Enter your password",
@@ -63,8 +70,8 @@ class _PasswordFieldState extends State<PasswordField> {
                 // ICON KIRI
                 prefixIcon: Padding(
                   padding: const EdgeInsets.only(left: 16, right: 12),
-                  child: Image.asset(
-                    "assets/icons/lock.png",
+                  child: SvgPicture.asset(
+                    "assets/icons/lock.svg",
                     width: 20,
                   ),
                 ),

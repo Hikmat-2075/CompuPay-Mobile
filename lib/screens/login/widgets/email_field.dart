@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class EmailField extends StatelessWidget {
-  const EmailField({super.key});
+  final TextEditingController controller;
+
+  const EmailField({
+    super.key,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +42,8 @@ class EmailField extends StatelessWidget {
               ),
             ),
             child: TextField(
+              controller: controller, // 🔥 INI YANG PENTING
+
               decoration: InputDecoration(
                 hintText: "name@company.com",
                 hintStyle: const TextStyle(
@@ -53,8 +61,8 @@ class EmailField extends StatelessWidget {
 
                 prefixIcon: Padding(
                   padding: const EdgeInsets.only(left: 16, right: 12),
-                  child: Image.asset(
-                    "assets/icons/email.png",
+                  child: SvgPicture.asset(
+                    "assets/icons/email.svg",
                     width: 20,
                     height: 15,
                   ),
