@@ -16,43 +16,36 @@ class PayrollService {
       return parsePayslipItems(response);
     } on ApiException {
       rethrow;
-    } catch (_) {
-      throw ApiException('Gagal mengambil data payroll');
+    } catch (e) {
+      throw ApiException(
+        'Gagal mengambil data payroll',
+      );
     }
   }
 
-  static Future<PayslipItem?> getPayslipDetail(String id) async {
+  static Future<PayslipItem?> getPayslipDetail(
+    String id,
+  ) async {
     try {
-      final response = await ApiService.get('${ApiConfig.payroll}/$id');
-
-      final data = _extractData(response);
-      final map = asMap(data);
-
-      if (map == null) {
-        return null;
-      }
-
-      return PayslipItem.fromJson(map);
-    } on ApiException {
-      rethrow;
-    } catch (_) {
-      throw ApiException('Gagal mengambil detail payroll');
-    }
-  }
-
-  static dynamic _extractData(dynamic response) {
-    if (response is Map<String, dynamic>) {
-      return response['data'] ?? response['result'] ?? response;
-    }
-
-    if (response is Map) {
-      final normalized = response.map(
-        (key, value) => MapEntry(key.toString(), value),
+      final response = await ApiService.get(
+        '${ApiConfig.payroll}/$id',
       );
 
-      return normalized['data'] ?? normalized['result'] ?? normalized;
-    }
+      if (response is Map<String, dynamic>) {
+        final data = response['data'];
 
-    return response;
+        if (data is Map<String, dynamic>) {
+          return PayslipItem.fromJson(data);
+        }
+      }
+
+      return null;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Gagal mengambil detail payroll',
+      );
+    }
   }
 }
