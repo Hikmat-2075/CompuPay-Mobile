@@ -1,3 +1,5 @@
+import 'package:compupay_mobile/navigation/main_navigation.dart';
+import 'package:compupay_mobile/screens/login/login_screen.dart';
 import 'package:compupay_mobile/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,15 +20,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'CompuPay',
       debugShowCheckedModeBanner: false,
-
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-
       home: const SplashScreen(),
+      routes: {
+        "/login": (_) => const LoginScreen(),
+        "/main": (_) => const MainNavigation(),
+      },
     );
   }
 }

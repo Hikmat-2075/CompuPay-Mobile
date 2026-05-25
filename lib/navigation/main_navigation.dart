@@ -14,11 +14,11 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
 
-  final pages = [
-    const HomePage(),
-    const AttendanceScreen(),
-    const PayslipScreen(),
-    const Center(child: Text("Profile")),
+  final pages = const [
+    HomePage(),
+    AttendanceScreen(),
+    PayslipScreen(),
+    Center(child: Text("Profile")),
   ];
 
   void changePage(int index) {
@@ -31,7 +31,6 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: pages[currentIndex],
-
       bottomNavigationBar: SafeArea(
         child: BottomNavBar(currentIndex: currentIndex, onTap: changePage),
       ),

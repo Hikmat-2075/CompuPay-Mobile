@@ -46,22 +46,10 @@ class _LoginFormState extends State<LoginForm> {
       isLoading = true;
     });
 
-    // ============================
-    // API LOGIN (DI-COMMENT)
-    // ============================
-
-    /*
-  await authController.login(
-    emailController.text,
-    passwordController.text,
-  );
-  */
-
-    // ============================
-    // MOCK LOGIN (langsung pindah page)
-    // ============================
-
-    await Future.delayed(const Duration(seconds: 1));
+    final success = await authController.login(
+      emailController.text.trim(),
+      passwordController.text,
+    );
 
     if (!mounted) return;
 
@@ -69,10 +57,12 @@ class _LoginFormState extends State<LoginForm> {
       isLoading = false;
     });
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainNavigation()),
-    );
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+      );
+    }
   }
 
   @override
