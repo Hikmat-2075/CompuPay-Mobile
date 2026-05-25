@@ -1,13 +1,18 @@
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
-import 'package:compupay_mobile/core/services/payslip_service.dart';
+
+import 'package:compupay_mobile/core/services/payroll_service.dart';
+
 import 'package:compupay_mobile/models/payslip_models.dart';
+
 import 'package:flutter/material.dart';
 
 class PayslipScreen extends StatefulWidget {
   const PayslipScreen({super.key});
 
   static const Color _primaryPurple = Color(0xFF6B3EEA);
+
   static const Color _softPurple = Color(0xFFF1EAFF);
+
   static const Color _screenBg = Color(0xFFF5F6FA);
 
   @override
@@ -20,12 +25,13 @@ class _PayslipScreenState extends State<PayslipScreen> {
   @override
   void initState() {
     super.initState();
-    _payslipsFuture = PayslipService.getPayslips();
+
+    _payslipsFuture = PayrollService.getPayslips();
   }
 
   Future<void> _refresh() async {
     setState(() {
-      _payslipsFuture = PayslipService.getPayslips();
+      _payslipsFuture = PayrollService.getPayslips();
     });
 
     await _payslipsFuture;
@@ -41,7 +47,10 @@ class _PayslipScreenState extends State<PayslipScreen> {
         titleSpacing: 8,
         leading: IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.menu_rounded, color: PayslipScreen._primaryPurple),
+          icon: const Icon(
+            Icons.menu_rounded,
+            color: PayslipScreen._primaryPurple,
+          ),
         ),
         title: const Row(
           children: [
@@ -175,7 +184,8 @@ class _PayslipScreenState extends State<PayslipScreen> {
                       ],
                       const SizedBox(height: 12),
                       _AnnualSummaryCard(
-                        onPressed: () => _showPayslipDetail(context, slips.first),
+                        onPressed: () =>
+                            _showPayslipDetail(context, slips.first),
                       ),
                     ],
                   ),
@@ -306,10 +316,7 @@ class _PayslipScreenState extends State<PayslipScreen> {
                           ),
                           const SizedBox(height: 10),
                           for (final item in slip.detail.earnings) ...[
-                            _AmountRow(
-                              label: item.label,
-                              value: item.value,
-                            ),
+                            _AmountRow(label: item.label, value: item.value),
                           ],
                           const SizedBox(height: 20),
                         ],
@@ -339,7 +346,8 @@ class _PayslipScreenState extends State<PayslipScreen> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: PayslipScreen._primaryPurple.withValues(alpha: 0.3),
+                                  color: PayslipScreen._primaryPurple
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 16,
                                   offset: const Offset(0, 8),
                                 ),
@@ -349,7 +357,9 @@ class _PayslipScreenState extends State<PayslipScreen> {
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('PDF download is not wired yet.'),
+                                    content: Text(
+                                      'PDF download is not wired yet.',
+                                    ),
                                   ),
                                 );
                               },
@@ -516,10 +526,7 @@ class _PayslipStateView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: onAction,
-              child: Text(actionLabel),
-            ),
+            OutlinedButton(onPressed: onAction, child: Text(actionLabel)),
           ],
         ),
       ),

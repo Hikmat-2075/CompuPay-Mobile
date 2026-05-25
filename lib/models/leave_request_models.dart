@@ -1,7 +1,4 @@
-enum LeaveRequestType {
-  cuti,
-  sakit,
-}
+enum LeaveRequestType { cuti, sakit }
 
 extension LeaveRequestTypeValue on LeaveRequestType {
   String get apiValue {
@@ -23,7 +20,9 @@ extension LeaveRequestTypeValue on LeaveRequestType {
   }
 
   static LeaveRequestType fromValue(String? value) {
-    switch ((value ?? '').toUpperCase()) {
+    final normalized = (value ?? '').trim().toUpperCase();
+
+    switch (normalized) {
       case 'SAKIT':
         return LeaveRequestType.sakit;
       case 'CUTI':
@@ -57,19 +56,19 @@ class LeaveRequestItem {
   });
 
   factory LeaveRequestItem.fromJson(Map<String, dynamic> json) {
-    final startDate = DateTime.tryParse((json['startDate'] ?? '').toString());
-    final endDate = DateTime.tryParse((json['endDate'] ?? '').toString());
+    final startDate = _parseDate(json['startDate'] ?? json['start_date']);
+    final endDate = _parseDate(json['endDate'] ?? json['end_date']);
 
     return LeaveRequestItem(
       id: (json['id'] ?? '').toString(),
-      userId: (json['user_id'] ?? '').toString(),
+      userId: (json['user_id'] ?? json['userId'] ?? '').toString(),
       type: LeaveRequestTypeValue.fromValue(json['type']?.toString()),
       startDate: startDate ?? DateTime.now(),
       endDate: endDate ?? DateTime.now(),
       reason: (json['reason'] ?? '').toString(),
-      attachment: json['attachment']?.toString(),
+      attachment: _parseNullableString(json['attachment']),
       status: (json['status'] ?? 'PENDING').toString(),
-      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()),
+      createdAt: _parseDate(json['created_at'] ?? json['createdAt']),
     );
   }
 }
@@ -90,9 +89,9 @@ class LeaveRequestCreatePayload {
   Map<String, String> toFields() {
     return {
       'type': type.apiValue,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
-      'reason': reason,
+      'startDate': _formatDateOnly(startDate),
+      'endDate': _formatDateOnly(endDate),
+      'reason': reason.trim(),
     };
   }
 }
@@ -119,11 +118,13 @@ List<LeaveRequestItem> parseLeaveRequestList(dynamic response) {
   }
 
   final root = asLeaveRequestMap(response);
+
   if (root == null) {
     return const [];
   }
 
   final data = root['data'];
+
   if (data is List) {
     return data
         .map(asLeaveRequestMap)
@@ -132,14 +133,25 @@ List<LeaveRequestItem> parseLeaveRequestList(dynamic response) {
         .toList(growable: false);
   }
 
-  if (data is Map) {
-    final innerData = data['data'];
-    if (innerData is List) {
-      return innerData
-          .map(asLeaveRequestMap)
-          .whereType<Map<String, dynamic>>()
-          .map(LeaveRequestItem.fromJson)
-          .toList(growable: false);
+  final dataMap = asLeaveRequestMap(data);
+
+  if (dataMap != null) {
+    final possibleLists = [
+      dataMap['data'],
+      dataMap['items'],
+      dataMap['rows'],
+      dataMap['results'],
+      dataMap['leaveRequests'],
+    ];
+
+    for (final item in possibleLists) {
+      if (item is List) {
+        return item
+            .map(asLeaveRequestMap)
+            .whereType<Map<String, dynamic>>()
+            .map(LeaveRequestItem.fromJson)
+            .toList(growable: false);
+      }
     }
   }
 
@@ -148,8 +160,48 @@ List<LeaveRequestItem> parseLeaveRequestList(dynamic response) {
 
 LeaveRequestItem parseLeaveRequestDetail(dynamic response) {
   final root = asLeaveRequestMap(response);
-  final data = root != null ? root['data'] : response;
+
+  final dynamic data = root != null
+      ? root['data'] ?? root['result'] ?? root
+      : response;
 
   final map = asLeaveRequestMap(data) ?? <String, dynamic>{};
+
   return LeaveRequestItem.fromJson(map);
+}
+
+DateTime? _parseDate(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+
+  final rawValue = value.toString().trim();
+
+  if (rawValue.isEmpty || rawValue == 'null') {
+    return null;
+  }
+
+  return DateTime.tryParse(rawValue);
+}
+
+String? _parseNullableString(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+
+  final rawValue = value.toString().trim();
+
+  if (rawValue.isEmpty || rawValue == 'null') {
+    return null;
+  }
+
+  return rawValue;
+}
+
+String _formatDateOnly(DateTime value) {
+  final year = value.year.toString().padLeft(4, '0');
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+
+  return '$year-$month-$day';
 }
