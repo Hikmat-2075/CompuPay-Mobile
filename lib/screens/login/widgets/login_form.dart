@@ -46,30 +46,22 @@ class _LoginFormState extends State<LoginForm> {
       isLoading = true;
     });
 
-    try {
-      await authController.login(
-        emailController.text,
-        passwordController.text,
-      );
+    final success = await authController.login(
+      emailController.text.trim(),
+      passwordController.text,
+    );
 
-      if (!mounted) return;
+    if (!mounted) return;
 
+    setState(() {
+      isLoading = false;
+    });
+
+    if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const MainNavigation(),
-        ),
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
       );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
     }
   }
 
