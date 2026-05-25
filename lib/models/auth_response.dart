@@ -18,7 +18,7 @@ class AuthResponse {
       code: json["code"],
       status: json["status"],
       message: json["message"],
-      data: AuthData.fromJson(json["data"]),
+      data: AuthData.fromJson(json),
     );
   }
 }
