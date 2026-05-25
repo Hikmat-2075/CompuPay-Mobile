@@ -1,6 +1,9 @@
+import 'package:compupay_mobile/core/exceptions/api_exception.dart';
+import 'package:compupay_mobile/core/services/payslip_service.dart';
+import 'package:compupay_mobile/models/payslip_models.dart';
 import 'package:flutter/material.dart';
 
-class PayslipScreen extends StatelessWidget {
+class PayslipScreen extends StatefulWidget {
   const PayslipScreen({super.key});
 
   static const Color _primaryPurple = Color(0xFF6B3EEA);
@@ -8,25 +11,40 @@ class PayslipScreen extends StatelessWidget {
   static const Color _screenBg = Color(0xFFF5F6FA);
 
   @override
-  Widget build(BuildContext context) {
-    const slips = <_PayslipItem>[
-      _PayslipItem(month: 'December 2025', netPay: '\$5,240.00'),
-      _PayslipItem(month: 'November 2025', netPay: '\$5,240.00'),
-      _PayslipItem(month: 'October 2025', netPay: '\$5,240.00'),
-    ];
+  State<PayslipScreen> createState() => _PayslipScreenState();
+}
 
+class _PayslipScreenState extends State<PayslipScreen> {
+  late Future<List<PayslipItem>> _payslipsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _payslipsFuture = PayslipService.getPayslips();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _payslipsFuture = PayslipService.getPayslips();
+    });
+
+    await _payslipsFuture;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _screenBg,
+      backgroundColor: PayslipScreen._screenBg,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         titleSpacing: 8,
         leading: IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.menu_rounded, color: _primaryPurple),
+          icon: const Icon(Icons.menu_rounded, color: PayslipScreen._primaryPurple),
         ),
-        title: Row(
-          children: const [
+        title: const Row(
+          children: [
             Text(
               'Compu',
               style: TextStyle(
@@ -39,7 +57,7 @@ class PayslipScreen extends StatelessWidget {
             Text(
               'Pay',
               style: TextStyle(
-                color: _primaryPurple,
+                color: PayslipScreen._primaryPurple,
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -1,
@@ -60,10 +78,48 @@ class PayslipScreen extends StatelessWidget {
       ),
       body: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            Expanded(
+        child: FutureBuilder<List<PayslipItem>>(
+          future: _payslipsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: PayslipScreen._primaryPurple,
+                ),
+              );
+            }
+
+            if (snapshot.hasError) {
+              final error = snapshot.error;
+              final message = error is ApiException
+                  ? error.message
+                  : 'The app could not load payslip data.';
+
+              return _PayslipStateView(
+                title: 'Unable to load payslips',
+                description: message,
+                actionLabel: 'Retry',
+                onAction: _refresh,
+              );
+            }
+
+            final slips = snapshot.data ?? const <PayslipItem>[];
+
+            if (slips.isEmpty) {
+              return _PayslipStateView(
+                title: 'No payslips found',
+                description:
+                    'The API returned no payslip records for the current account.',
+                actionLabel: 'Refresh',
+                onAction: _refresh,
+              );
+            }
+
+            return RefreshIndicator(
+              color: PayslipScreen._primaryPurple,
+              onRefresh: _refresh,
               child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
                 child: Container(
                   decoration: BoxDecoration(
@@ -91,7 +147,7 @@ class PayslipScreen extends StatelessWidget {
                           Text(
                             'HISTORY',
                             style: TextStyle(
-                              color: _primaryPurple,
+                              color: PayslipScreen._primaryPurple,
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
                               letterSpacing: 1.1,
@@ -113,24 +169,26 @@ class PayslipScreen extends StatelessWidget {
                       for (final slip in slips) ...[
                         _PayslipCard(
                           slip: slip,
-                          onTap: () => _showPayslipDetail(context, slip.month),
+                          onTap: () => _showPayslipDetail(context, slip),
                         ),
                         const SizedBox(height: 14),
                       ],
                       const SizedBox(height: 12),
-                      _AnnualSummaryCard(onPressed: () {}),
+                      _AnnualSummaryCard(
+                        onPressed: () => _showPayslipDetail(context, slips.first),
+                      ),
                     ],
                   ),
                 ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  void _showPayslipDetail(BuildContext context, String month) {
+  void _showPayslipDetail(BuildContext context, PayslipItem slip) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -176,9 +234,9 @@ class PayslipScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    month,
+                                    slip.monthLabel,
                                     style: const TextStyle(
-                                      color: _primaryPurple,
+                                      color: PayslipScreen._primaryPurple,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -216,9 +274,9 @@ class PayslipScreen extends StatelessWidget {
                             horizontal: 18,
                             vertical: 18,
                           ),
-                          child: const Column(
+                          child: Column(
                             children: [
-                              Text(
+                              const Text(
                                 'Total Net Salary',
                                 style: TextStyle(
                                   color: Color(0xFF4B5563),
@@ -226,11 +284,11 @@ class PayslipScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                'Rp 12.450.000',
-                                style: TextStyle(
-                                  color: _primaryPurple,
+                                slip.netPay,
+                                style: const TextStyle(
+                                  color: PayslipScreen._primaryPurple,
                                   fontSize: 36,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.5,
@@ -240,41 +298,36 @@ class PayslipScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 22),
-                        const _SectionTitle(
-                          icon: Icons.add_circle_outline,
-                          title: 'EARNINGS',
-                          color: _primaryPurple,
-                        ),
-                        const SizedBox(height: 10),
-                        const _AmountRow(
-                          label: 'Gaji Pokok',
-                          value: 'Rp 10.000.000',
-                        ),
-                        const _AmountRow(
-                          label: 'Allowance (Transport)',
-                          value: 'Rp 1.500.000',
-                        ),
-                        const _AmountRow(
-                          label: 'Allowance (Meal)',
-                          value: 'Rp 2.000.000',
-                        ),
-                        const SizedBox(height: 20),
-                        const _SectionTitle(
-                          icon: Icons.remove_circle_outline,
-                          title: 'DEDUCTIONS',
-                          color: Color(0xFFB42318),
-                        ),
-                        const SizedBox(height: 10),
-                        const _AmountRow(
-                          label: 'BPJS Ketenagakerjaan',
-                          value: '- Rp 450.000',
-                          valueColor: Color(0xFFB42318),
-                        ),
-                        const _AmountRow(
-                          label: 'Pajak (PPh 21)',
-                          value: '- Rp 600.000',
-                          valueColor: Color(0xFFB42318),
-                        ),
+                        if (slip.detail.earnings.isNotEmpty) ...[
+                          const _SectionTitle(
+                            icon: Icons.add_circle_outline,
+                            title: 'EARNINGS',
+                            color: PayslipScreen._primaryPurple,
+                          ),
+                          const SizedBox(height: 10),
+                          for (final item in slip.detail.earnings) ...[
+                            _AmountRow(
+                              label: item.label,
+                              value: item.value,
+                            ),
+                          ],
+                          const SizedBox(height: 20),
+                        ],
+                        if (slip.detail.deductions.isNotEmpty) ...[
+                          const _SectionTitle(
+                            icon: Icons.remove_circle_outline,
+                            title: 'DEDUCTIONS',
+                            color: Color(0xFFB42318),
+                          ),
+                          const SizedBox(height: 10),
+                          for (final item in slip.detail.deductions) ...[
+                            _AmountRow(
+                              label: item.label,
+                              value: item.value,
+                              valueColor: const Color(0xFFB42318),
+                            ),
+                          ],
+                        ],
                         const SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,
@@ -286,14 +339,20 @@ class PayslipScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _primaryPurple.withValues(alpha: 0.3),
+                                  color: PayslipScreen._primaryPurple.withValues(alpha: 0.3),
                                   blurRadius: 16,
                                   offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
                             child: TextButton.icon(
-                              onPressed: () {},
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('PDF download is not wired yet.'),
+                                  ),
+                                );
+                              },
                               icon: const Icon(
                                 Icons.download_rounded,
                                 color: Colors.white,
@@ -330,17 +389,10 @@ class PayslipScreen extends StatelessWidget {
   }
 }
 
-class _PayslipItem {
-  const _PayslipItem({required this.month, required this.netPay});
-
-  final String month;
-  final String netPay;
-}
-
 class _PayslipCard extends StatelessWidget {
   const _PayslipCard({required this.slip, required this.onTap});
 
-  final _PayslipItem slip;
+  final PayslipItem slip;
   final VoidCallback onTap;
 
   @override
@@ -384,7 +436,7 @@ class _PayslipCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      slip.month,
+                      slip.monthLabel,
                       style: const TextStyle(
                         color: Color(0xFF111827),
                         fontSize: 18,
@@ -411,6 +463,64 @@ class _PayslipCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PayslipStateView extends StatelessWidget {
+  const _PayslipStateView({
+    required this.title,
+    required this.description,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  final String title;
+  final String description;
+  final String actionLabel;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.receipt_long_outlined,
+              size: 54,
+              color: Color(0xFF6B3EEA),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111827),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 15,
+                height: 1.45,
+                color: Color(0xFF4B5563),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: onAction,
+              child: Text(actionLabel),
+            ),
+          ],
         ),
       ),
     );
@@ -511,8 +621,6 @@ class _AnnualSummaryCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({
