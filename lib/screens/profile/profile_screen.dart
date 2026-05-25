@@ -1,5 +1,10 @@
 import 'package:compupay_mobile/core/services/session_service.dart';
+import 'package:compupay_mobile/models/profile_model.dart';
 import 'package:compupay_mobile/screens/login/login_screen.dart';
+import 'package:compupay_mobile/core/services/profile_service.dart';
+import 'package:compupay_mobile/core/widgets/profile_info_card.dart';
+import 'package:compupay_mobile/core/widgets/settings_tile.dart';
+
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -8,9 +13,7 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     await SessionService.logout();
 
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -22,156 +25,265 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF5F5F7),
+
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F5F7),
         elevation: 0,
+        centerTitle: false,
         title: const Text(
           'Profile',
           style: TextStyle(
-            color: Color(0xFF111827),
+            color: Color(0xFF6B3EEA),
             fontWeight: FontWeight.w700,
+            fontSize: 24,
           ),
         ),
+        iconTheme: const IconThemeData(color: Color(0xFF64748B)),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.settings_outlined),
+          ),
+        ],
       ),
-      body: SafeArea(
-        child: FutureBuilder<List<String?>>(
-          future: Future.wait([
-            SessionService.getEmployeeName(),
-            SessionService.getEmployeeId(),
-            SessionService.getRole(),
-            SessionService.getPosition(),
-          ]),
-          builder: (context, snapshot) {
-            final values = snapshot.data;
-            final name = values != null && values.isNotEmpty ? values[0] : null;
-            final employeeId = values != null && values.length > 1 ? values[1] : null;
-            final role = values != null && values.length > 2 ? values[2] : null;
-            final position = values != null && values.length > 3 ? values[3] : null;
 
-            return ListView(
-              padding: const EdgeInsets.all(16),
+      body: FutureBuilder<ProfileModel>(
+        future: ProfileService.getProfile(),
+
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+
+          final profile = snapshot.data;
+
+          if (profile == null) {
+            return const Center(child: Text('Profile tidak ditemukan'));
+          }
+
+          return SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 18,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF3E8FF),
-                          shape: BoxShape.circle,
+                /// PROFILE HEADER
+                Column(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF6B3EEA),
+                              width: 4,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 56,
+                            backgroundColor: Colors.black,
+                            backgroundImage:
+                                profile.photo != null &&
+                                    profile.photo!.isNotEmpty
+                                ? NetworkImage(profile.photo!)
+                                : null,
+                            child: profile.photo == null
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 60,
+                                    color: Colors.white,
+                                  )
+                                : null,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.person,
+
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6B3EEA),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    Text(
+                      profile.name,
+                      style: const TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF111827),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      profile.position,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF6B3EEA),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+
+                /// PERSONAL INFORMATION
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Personal Information',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF3F3D56),
+                      ),
+                    ),
+
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        'Edit All',
+                        style: TextStyle(
                           color: Color(0xFF6B3EEA),
-                          size: 36,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      Text(
-                        name?.isNotEmpty == true ? name! : 'Nama belum tersedia',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF111827),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        employeeId?.isNotEmpty == true
-                            ? 'ID Karyawan: $employeeId'
-                            : 'ID Karyawan belum tersedia',
-                        style: const TextStyle(
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                ProfileInfoCard(
+                  title: 'Full Name',
+                  value: profile.name,
+                  highlighted: true,
+                ),
+
+                ProfileInfoCard(
+                  title: 'Employee ID (NIK)',
+                  value: profile.employeeId,
+                ),
+
+                ProfileInfoCard(title: 'Email Address', value: profile.email),
+
+                ProfileInfoCard(title: 'Department', value: profile.department),
+
+                const SizedBox(height: 30),
+
+                /// SETTINGS
+                const Text(
+                  'App Settings',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF3F3D56),
                   ),
                 ),
-                const SizedBox(height: 16),
-                _InfoCard(
-                  title: 'Role',
-                  value: role?.isNotEmpty == true ? role! : '-',
+
+                const SizedBox(height: 20),
+
+                SettingsTile(
+                  icon: Icons.dark_mode_outlined,
+                  title: 'Appearance',
+                  subtitle: 'Switch between Light and Dark mode',
+                  trailing: Switch(
+                    value: true,
+                    onChanged: (value) {},
+                    activeColor: const Color(0xFF6B3EEA),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                _InfoCard(
-                  title: 'Position',
-                  value: position?.isNotEmpty == true ? position! : '-',
+
+                const SizedBox(height: 14),
+
+                SettingsTile(
+                  icon: Icons.notifications_none_rounded,
+                  title: 'Notifications',
+                  subtitle: 'Manage payroll and leave alerts',
+                  onTap: () {},
                 ),
-                const SizedBox(height: 18),
+
+                const SizedBox(height: 14),
+
+                SettingsTile(
+                  icon: Icons.lock_outline_rounded,
+                  title: 'Security',
+                  subtitle: 'Biometrics and Password settings',
+                  onTap: () {},
+                ),
+
+                const SizedBox(height: 36),
+
+                /// LOGOUT BUTTON
                 SizedBox(
                   width: double.infinity,
-                  height: 52,
+                  height: 62,
                   child: OutlinedButton.icon(
                     onPressed: () => _logout(context),
-                    icon: const Icon(Icons.logout_rounded),
-                    label: const Text('Logout'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFDC2626),
-                      side: const BorderSide(color: Color(0xFFFECACA)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+
+                    icon: const Icon(Icons.logout, color: Color(0xFFDC2626)),
+
+                    label: const Text(
+                      'Logout',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFDC2626),
                       ),
+                    ),
+
+                    style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
+                      side: const BorderSide(
+                        color: Color(0xFFDC2626),
+                        width: 2,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 30),
+
+                const Center(
+                  child: Text(
+                    'CompuPay v2.4.0 — Financial Concierge',
+                    style: TextStyle(color: Color(0xFF94A3B8)),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
               ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.title, required this.value});
-
-  final String title;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF6B7280),
-              fontWeight: FontWeight.w600,
             ),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Color(0xFF111827),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

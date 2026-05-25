@@ -39,26 +39,13 @@ class AuthService {
     try {
       final profile = await ProfileService.getProfile();
 
-      final fullName = _getString(profile, const [
-        'full_name',
-        'fullName',
-        'name',
-      ]);
+      final fullName = profile.name;
 
-      final employeeNumber = _getString(profile, const [
-        'employee_number',
-        'employeeNumber',
-        'id',
-      ]);
+      final employeeNumber = profile.employeeId;
 
-      final role = _getString(profile, const ['role']);
+      final role = profile.role;
 
-      final position = _getNestedString(profile, const [
-        'position.name',
-        'position_name',
-        'positionName',
-        'position',
-      ]);
+      final position = profile.position;
 
       await SessionService.saveUserProfile(
         employeeName: fullName,
