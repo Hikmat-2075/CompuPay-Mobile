@@ -17,6 +17,12 @@ class AuthService {
       // simpan token
       await SessionService.saveToken(authResponse.data.accessToken);
       await SessionService.saveRefreshToken(authResponse.data.refreshToken);
+      await SessionService.saveUserProfile(
+        employeeName: authResponse.data.employeeName,
+        employeeId: authResponse.data.employeeId,
+        role: authResponse.data.role,
+        position: authResponse.data.position,
+      );
 
       return authResponse;
     } on ApiException {

@@ -1,6 +1,8 @@
 import 'package:compupay_mobile/screens/attendance/attendance_screen.dart';
 import 'package:compupay_mobile/screens/home/home_screen.dart';
 import 'package:compupay_mobile/screens/payslip/payslip_screen.dart';
+import 'package:compupay_mobile/screens/profile/profile_screen.dart';
+import 'package:compupay_mobile/screens/request/request_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:compupay_mobile/navigation/widgets/bottom_navbar.dart';
 
@@ -16,9 +18,10 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final pages = const [
     HomePage(),
+    RequestScreen(),
     AttendanceScreen(),
     PayslipScreen(),
-    Center(child: Text("Profile")),
+    ProfileScreen(),
   ];
 
   void changePage(int index) {

@@ -1,7 +1,7 @@
 import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:compupay_mobile/screens/leave_request/leave_request_screen.dart';
+import 'package:compupay_mobile/screens/request/request_screen.dart';
 import 'package:compupay_mobile/screens/payslip/payslip_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -113,13 +113,13 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 16),
             _HomeMenuCard(
               icon: Icons.assignment_rounded,
-              title: 'Leave Request',
-              subtitle: 'Buat surat izin dan lihat status pengajuan.',
+              title: 'Request',
+              subtitle: 'Lihat daftar dan buat pengajuan izin.',
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const LeaveRequestScreen(),
+                    builder: (_) => const RequestScreen(),
                   ),
                 );
               },
