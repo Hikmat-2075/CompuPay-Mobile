@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:compupay_mobile/navigation/widgets/bottom_navbar.dart';
 
 import 'package:compupay_mobile/screens/attendance/attendance_screen.dart';
+import 'package:compupay_mobile/screens/home/home_screen.dart';
 import 'package:compupay_mobile/screens/payslip/payslip_screen.dart';
 import 'package:compupay_mobile/screens/profile/profile_screen.dart';
 
