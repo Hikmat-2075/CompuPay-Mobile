@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LogoSection extends StatelessWidget {
   const LogoSection({super.key});
@@ -11,7 +12,6 @@ class LogoSection extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-
           Container(
             width: 64,
             height: 64,
@@ -32,9 +32,10 @@ class LogoSection extends StatelessWidget {
               ],
             ),
             child: Center(
-              child: Image.asset(
-                "assets/icons/icon.png",
+              child: SvgPicture.asset(
+                "assets/icons/dompet.svg",
                 width: 32,
+                height: 32,
                 fit: BoxFit.contain,
               ),
             ),
@@ -52,11 +53,26 @@ class LogoSection extends StatelessWidget {
                 letterSpacing: -1.5,
               ),
               children: [
-                TextSpan(text: "Com", style: TextStyle(color: Colors.black)),
-                TextSpan(text: "p", style: TextStyle(color: Color(0xFF6B38D4))),
-                TextSpan(text: "u", style: TextStyle(color: Colors.black)),
-                TextSpan(text: "P", style: TextStyle(color: Color(0xFF6B38D4))),
-                TextSpan(text: "ay", style: TextStyle(color: Colors.black)),
+                TextSpan(
+                  text: "Com",
+                  style: TextStyle(color: Colors.black),
+                ),
+                TextSpan(
+                  text: "p",
+                  style: TextStyle(color: Color(0xFF6B38D4)),
+                ),
+                TextSpan(
+                  text: "u",
+                  style: TextStyle(color: Colors.black),
+                ),
+                TextSpan(
+                  text: "P",
+                  style: TextStyle(color: Color(0xFF6B38D4)),
+                ),
+                TextSpan(
+                  text: "ay",
+                  style: TextStyle(color: Colors.black),
+                ),
               ],
             ),
           ),
@@ -78,7 +94,7 @@ class LogoSection extends StatelessWidget {
             ),
           ),
         ],
-      )
+      ),
     );
   }
 }

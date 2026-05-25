@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class EmailField extends StatelessWidget {
   final TextEditingController controller;
@@ -60,8 +61,8 @@ class EmailField extends StatelessWidget {
 
                 prefixIcon: Padding(
                   padding: const EdgeInsets.only(left: 16, right: 12),
-                  child: Image.asset(
-                    "assets/icons/email.png",
+                  child: SvgPicture.asset(
+                    "assets/icons/email.svg",
                     width: 20,
                     height: 15,
                   ),
