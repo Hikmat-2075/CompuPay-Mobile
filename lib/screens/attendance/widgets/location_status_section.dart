@@ -1,86 +1,140 @@
 import 'package:flutter/material.dart';
 
 class LocationStatusSection extends StatelessWidget {
-  const LocationStatusSection({super.key});
+  final bool insideRadius;
+  final double? distanceToOffice;
+  final double? radius;
+
+  const LocationStatusSection({
+    super.key,
+    required this.insideRadius,
+    this.distanceToOffice,
+    this.radius,
+  });
+
+  String _formatDistance(double? meters) {
+    if (meters == null) return '-';
+    if (meters >= 1000) return '${(meters / 1000).toStringAsFixed(2)} km';
+    return '${meters.toStringAsFixed(0)} m';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Color accentColor = insideRadius
+        ? const Color(0xFF16A34A)
+        : const Color(0xFFF97316);
+    final Color softColor = insideRadius
+        ? const Color(0xFFEAF8EF)
+        : const Color(0xFFFFF3E8);
+    final String title = insideRadius
+        ? 'Dalam Radius Kantor'
+        : 'Di Luar Radius Kantor';
+    final String description = insideRadius
+        ? 'Anda berada dalam area yang diperbolehkan untuk absensi.'
+        : 'Dekati area kantor agar tombol absensi dapat digunakan.';
+
     return Container(
-      width: 326,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 10,
-          )
+            color: Color(0x12000000),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          /// ICON
           Container(
-            width: 32,
-            height: 32,
-            padding: const EdgeInsets.all(8),
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3E8FF),
-              borderRadius: BorderRadius.circular(8),
+              color: softColor,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.location_on,
-              size: 16,
-              color: Color(0xFF7C3AED),
+            child: Icon(
+              insideRadius ? Icons.verified_rounded : Icons.warning_amber_rounded,
+              color: accentColor,
+              size: 24,
             ),
           ),
-
-          const SizedBox(width: 12),
-
-          /// TEXT SECTION
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-
-                /// TITLE
+              children: [
                 Text(
-                  "CURRENT LOCATION",
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1,
-                    color: Colors.black54,
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111827),
                   ),
                 ),
-
-                SizedBox(height: 4),
-
-                /// ADDRESS
+                const SizedBox(height: 4),
                 Text(
-                  "Jl. Gatot Subroto No. 123, Jakarta Selatan",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
+                  description,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.35,
+                    color: Color(0xFF6B7280),
                   ),
                 ),
-
-                SizedBox(height: 4),
-
-                /// ACCURACY
-                Text(
-                  "Accuracy: High (within 5 meters)",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.black54,
-                  ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _InfoChip(
+                      icon: Icons.near_me_rounded,
+                      label: 'Jarak ${_formatDistance(distanceToOffice)}',
+                    ),
+                    _InfoChip(
+                      icon: Icons.radar_rounded,
+                      label: 'Radius ${_formatDistance(radius)}',
+                    ),
+                  ],
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _InfoChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: const Color(0xFF64748B)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF475569),
             ),
           ),
         ],
