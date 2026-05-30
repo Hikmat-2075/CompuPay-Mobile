@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:http_parser/http_parser.dart';
 import 'package:compupay_mobile/core/config/api_config.dart';
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
 import 'package:compupay_mobile/core/services/session_service.dart';
@@ -113,6 +115,8 @@ class ApiService {
     required String endpoint,
     required Map<String, String> fields,
     File? file,
+    Uint8List? fileBytes,
+    String? filename,
     String fileField = 'attachment',
   }) async {
     try {
@@ -131,9 +135,14 @@ class ApiService {
 
       request.fields.addAll(fields);
 
-      if (file != null) {
+      if (fileBytes != null) {
         request.files.add(
-          await http.MultipartFile.fromPath(fileField, file.path),
+          http.MultipartFile.fromBytes(
+            fileField,
+            fileBytes,
+            filename: filename ?? 'attendance_photo.jpg',
+            contentType: MediaType('image', 'jpeg'),
+          ),
         );
       }
 
