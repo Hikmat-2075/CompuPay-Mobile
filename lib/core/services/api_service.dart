@@ -70,7 +70,13 @@ class ApiService {
 
       final token = await SessionService.getToken();
       final uri = Uri.parse('$baseUrl$endpoint');
+      print('====================');
+      print('PUT URL');
+      print(uri);
 
+      print('PUT BODY');
+      print(jsonEncode(data));
+      print('====================');
       final response = await http
           .put(uri, headers: _headers(token), body: jsonEncode(data))
           .timeout(const Duration(seconds: 20));

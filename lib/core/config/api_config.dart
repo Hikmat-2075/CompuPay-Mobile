@@ -95,4 +95,13 @@ class ApiConfig {
   static String get attendanceCheckIn => '$apiVersion/attendance/check-in';
 
   static String get attendanceCheckOut => '$apiVersion/attendance/check-out';
+  
+  // =========================
+  // USER
+  // =========================
+
+  static String user(String id) => '$apiVersion/user/$id';
+
+  static String get users => '$apiVersion/user';
 }
+  
