@@ -18,8 +18,37 @@ class ApiConfig {
   static String get refreshToken => '$apiVersion/auth/refresh';
 
   static String get forgetPassword => '$apiVersion/auth/forget-password';
+
   static String get verifyOtp => '$apiVersion/auth/verify-otp';
+
   static String get resetPassword => '$apiVersion/auth/reset-password';
+
+  // =========================
+  // NOTIFICATION / FCM
+  // =========================
+
+  static String get notification {
+    final notificationEndpoint = dotenv.env['NOTIFICATION_ENDPOINT'];
+
+    if (notificationEndpoint != null &&
+        notificationEndpoint.trim().isNotEmpty) {
+      return notificationEndpoint.trim();
+    }
+
+    return '$apiVersion/notification';
+  }
+
+  static String get notificationDeviceToken {
+    return '$notification/device-token';
+  }
+
+  static String notificationRead(String notificationId) {
+    return '$notification/$notificationId/read';
+  }
+
+  static String get notificationReadAll {
+    return '$notification/read-all';
+  }
 
   // =========================
   // LEAVE REQUEST
