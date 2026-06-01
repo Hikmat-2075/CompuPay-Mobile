@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:compupay_mobile/core/controllers/auth_controller.dart';
 import 'package:compupay_mobile/screens/login/reset_password_screen.dart';
 import 'package:compupay_mobile/screens/login/verify_otp_screen.dart';
+import 'package:compupay_mobile/shared/widgets/app_alert.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -32,9 +33,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(
+      AppAlert.warning(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Email wajib diisi')));
+        message: 'Email wajib diisi.',
+      );
       return;
     }
 

@@ -4,7 +4,7 @@ import 'package:compupay_mobile/core/services/api_service.dart';
 import 'package:compupay_mobile/core/services/profile_service.dart';
 import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/models/auth_response.dart';
-import 'package:compupay_mobile/core/models/forgot_password_models.dart';
+import 'package:compupay_mobile/models/forgot_password_models.dart';
 
 class AuthService {
   static Future<AuthResponse> login(String email, String password) async {

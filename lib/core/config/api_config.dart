@@ -49,6 +49,10 @@ class ApiConfig {
     return '$apiVersion/payroll';
   }
 
+  static String payrollPdf(String payrollId) {
+    return '$payroll/$payrollId/download-pdf';
+  }
+
   // =========================
   // ATTENDANCE
   // =========================

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:compupay_mobile/core/controllers/auth_controller.dart';
 import 'package:compupay_mobile/screens/login/login_screen.dart';
+import 'package:compupay_mobile/shared/widgets/app_alert.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String resetToken;
@@ -39,15 +40,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final confirmation = confirmPasswordController.text;
 
     if (password.isEmpty || confirmation.isEmpty) {
-      ScaffoldMessenger.of(
+      AppAlert.warning(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Password wajib diisi')));
+        message: 'Password wajib diisi.',
+      );
       return;
     }
 
     if (password != confirmation) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Konfirmasi password tidak sama')),
+      AppAlert.warning(
+        context,
+        message: 'Konfirmasi password tidak sama.',
       );
       return;
     }

@@ -4,6 +4,7 @@ import 'package:compupay_mobile/screens/login/login_screen.dart';
 import 'package:compupay_mobile/core/services/profile_service.dart';
 import 'package:compupay_mobile/core/widgets/profile_info_card.dart';
 import 'package:compupay_mobile/core/widgets/settings_tile.dart';
+import 'package:compupay_mobile/shared/widgets/app_header.dart';
 
 import 'package:flutter/material.dart';
 
@@ -27,19 +28,12 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
 
-      appBar: AppBar(
+      appBar: AppHeader(
+        title: 'Profile',
+        showBackButton: false,
         backgroundColor: const Color(0xFFF5F5F7),
-        elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            color: Color(0xFF6B3EEA),
-            fontWeight: FontWeight.w700,
-            fontSize: 24,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFF64748B)),
+        foregroundColor: const Color(0xFF6B3EEA),
+        titleFontSize: 24,
         actions: [
           IconButton(
             onPressed: () {},

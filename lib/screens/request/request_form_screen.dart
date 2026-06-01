@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
+import 'package:compupay_mobile/shared/widgets/app_alert.dart';
 import 'package:compupay_mobile/core/services/leave_request_service.dart';
 import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/models/leave_request_models.dart';
 import 'package:compupay_mobile/core/utils/jwt_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:compupay_mobile/shared/widgets/app_header.dart';
 
 class RequestFormScreen extends StatefulWidget {
   const RequestFormScreen({super.key});
@@ -204,12 +206,7 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pengajuan berhasil dikirim.'),
-          backgroundColor: Color(0xFF059669),
-        ),
-      );
+      AppAlert.success(context, message: 'Pengajuan berhasil dikirim.');
 
       Navigator.pop(context, true);
     } on ApiException catch (e) {
@@ -226,9 +223,9 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    if (!mounted) return;
+
+    AppAlert.error(context, message: message);
   }
 
   int? get _durationDays {
@@ -249,19 +246,11 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
+      appBar: const AppHeader(
+        title: 'Buat Pengajuan',
         backgroundColor: backgroundColor,
-        elevation: 0,
-        centerTitle: false,
         foregroundColor: textPrimary,
-        title: const Text(
-          'Buat Pengajuan',
-          style: TextStyle(
-            color: textPrimary,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.2,
-          ),
-        ),
+        titleFontWeight: FontWeight.w900,
       ),
       bottomNavigationBar: SafeArea(
         top: false,

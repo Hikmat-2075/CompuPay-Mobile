@@ -230,4 +230,48 @@ class ApiService {
       throw ApiException('BASE_URL belum dikonfigurasi');
     }
   }
+
+  static Future<Uint8List> downloadFile(String endpoint) async {
+    try {
+      _validateBaseUrl();
+
+      final token = await SessionService.getToken();
+      final uri = Uri.parse('$baseUrl$endpoint');
+
+      final response = await http
+          .get(
+            uri,
+            headers: {
+              'Accept': 'application/pdf',
+              if (token != null && token.trim().isNotEmpty)
+                'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 401) {
+        await SessionService.logout();
+        throw ApiException(
+          'Session habis, silakan login kembali',
+          statusCode: 401,
+        );
+      }
+
+      if (response.statusCode >= 400) {
+        throw ApiException(
+          'Gagal download PDF',
+          statusCode: response.statusCode,
+        );
+      }
+
+      return response.bodyBytes;
+    } on SocketException {
+      throw ApiException('Tidak dapat terhubung ke server');
+    } on TimeoutException {
+      throw ApiException('Server terlalu lama merespon');
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Terjadi kesalahan saat download PDF');
+    }
+  }
 }
