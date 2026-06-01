@@ -39,7 +39,6 @@ dependencies:
 
    # CAMERA
   camera: ^0.11.0+2
-  image_picker: ^1.0.7
 
   # LOCATION
   geolocator: ^13.0.0
@@ -54,6 +53,7 @@ dependencies:
   shared_preferences: ^2.2.3
   flutter_dotenv: ^5.1.0
   http: ^1.2.2
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

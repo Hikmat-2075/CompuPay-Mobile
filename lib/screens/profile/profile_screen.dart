@@ -4,11 +4,20 @@ import 'package:compupay_mobile/screens/login/login_screen.dart';
 import 'package:compupay_mobile/core/services/profile_service.dart';
 import 'package:compupay_mobile/core/widgets/profile_info_card.dart';
 import 'package:compupay_mobile/core/widgets/settings_tile.dart';
-
+import 'package:compupay_mobile/screens/profile/edit_profile_screen.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:compupay_mobile/core/config/api_config.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _logout(BuildContext context) async {
     await SessionService.logout();
@@ -20,6 +29,49 @@ class ProfileScreen extends StatelessWidget {
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,
     );
+  }
+
+  late Future<ProfileModel> _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture = ProfileService.getProfile();
+  }
+
+  void _refreshProfile() {
+    setState(() {
+      _profileFuture = ProfileService.getProfile();
+    });
+  }
+
+  Future<void> _changePhoto(ProfileModel profile) async {
+    final picker = ImagePicker();
+
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked == null) return;
+
+    try {
+      await ProfileService.uploadProfilePhoto(
+        userId: profile.id,
+        imageFile: File(picked.path),
+      );
+
+      _refreshProfile();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Photo updated')));
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
   @override
@@ -42,15 +94,44 @@ class ProfileScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Color(0xFF64748B)),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.settings_outlined),
-          ),
+            icon: const Icon(Icons.settings_outlined, color: Color(0xFF64748B)),
+
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Apakah Anda yakin ingin logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, false);
+                      },
+                      child: const Text('Batal'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      },
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                _logout(context);
+              }
+            },
+          )
         ],
       ),
 
       body: FutureBuilder<ProfileModel>(
-        future: ProfileService.getProfile(),
-
+        future: _profileFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -61,6 +142,7 @@ class ProfileScreen extends StatelessWidget {
           }
 
           final profile = snapshot.data;
+          print('PHOTO = ${profile?.photo}');
 
           if (profile == null) {
             return const Center(child: Text('Profile tidak ditemukan'));
@@ -91,7 +173,9 @@ class ProfileScreen extends StatelessWidget {
                             backgroundImage:
                                 profile.photo != null &&
                                     profile.photo!.isNotEmpty
-                                ? NetworkImage(profile.photo!)
+                                ? NetworkImage(
+                                    '${ApiConfig.baseUrl}/${profile.photo!}',
+                                  )
                                 : null,
                             child: profile.photo == null
                                 ? const Icon(
@@ -103,21 +187,27 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
 
-                        Positioned(
+                       Positioned(
                           right: 0,
                           bottom: 0,
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF6B3EEA),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3),
-                            ),
-                            child: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 18,
+                          child: GestureDetector(
+                            onTap: () => _changePhoto(profile),
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6B3EEA),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
@@ -165,7 +255,18 @@ class ProfileScreen extends StatelessWidget {
                     ),
 
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final updated = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EditProfileScreen(profile: profile),
+                          ),
+                        );
+
+                        if (updated == true) {
+                          _refreshProfile();
+                        }
+                      },
                       child: const Text(
                         'Edit All',
                         style: TextStyle(
@@ -208,18 +309,6 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                SettingsTile(
-                  icon: Icons.dark_mode_outlined,
-                  title: 'Appearance',
-                  subtitle: 'Switch between Light and Dark mode',
-                  trailing: Switch(
-                    value: true,
-                    onChanged: (value) {},
-                    activeColor: const Color(0xFF6B3EEA),
-                  ),
-                ),
-
-                const SizedBox(height: 14),
 
                 SettingsTile(
                   icon: Icons.notifications_none_rounded,
@@ -228,47 +317,42 @@ class ProfileScreen extends StatelessWidget {
                   onTap: () {},
                 ),
 
-                const SizedBox(height: 14),
-
-                SettingsTile(
-                  icon: Icons.lock_outline_rounded,
-                  title: 'Security',
-                  subtitle: 'Biometrics and Password settings',
-                  onTap: () {},
-                ),
-
                 const SizedBox(height: 36),
 
                 /// LOGOUT BUTTON
                 SizedBox(
-                  width: double.infinity,
-                  height: 62,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _logout(context),
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: () => _logout(context),
 
-                    icon: const Icon(Icons.logout, color: Color(0xFFDC2626)),
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Color(0xFFDC2626),
+                    size: 20,
+                  ),
 
-                    label: const Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFDC2626),
-                      ),
+                  label: const Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFDC2626),
                     ),
+                  ),
 
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(
-                        color: Color(0xFFDC2626),
-                        width: 2,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(
+                      color: Color(0xFFDC2626),
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                 ),
+              ),
 
                 const SizedBox(height: 30),
 

@@ -64,4 +64,12 @@ class ApiConfig {
 
   static String get attendanceToday =>
       '$apiVersion/attendance/today';
+
+  // =========================
+  // USER
+  // =========================
+
+  static String user(String id) => '$apiVersion/user/$id';
+
+  static String get users => '$apiVersion/user';
 }

@@ -6,8 +6,10 @@ class ProfileModel {
   final String position;
   final String role;
   final String? photo;
+  final String id;
 
   ProfileModel({
+    required this.id,
     required this.name,
     required this.employeeId,
     required this.email,
@@ -28,16 +30,17 @@ class ProfileModel {
         'employeeNumber',
         'nik',
       ]),
+      id: json['id']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
       department: _parseDepartment(json['department']),
       position: _parsePosition(json),
       role: _parseRole(json['role']),
-      photo: json['photo']?.toString(),
-    );
+      photo: json['profile_uri']?.toString() ?? json['photo']?.toString(),    );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'employeeId': employeeId,
       'email': email,
