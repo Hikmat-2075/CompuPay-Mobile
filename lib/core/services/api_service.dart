@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:compupay_mobile/core/navigation/app_navigator.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:compupay_mobile/core/config/api_config.dart';
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
@@ -174,7 +175,7 @@ class ApiService {
     };
   }
 
-  static dynamic _handleResponse(http.Response response) {
+  static Future<dynamic> _handleResponse(http.Response response) async {
     dynamic body;
 
     if (response.body.trim().isEmpty) {
@@ -191,7 +192,9 @@ class ApiService {
     }
 
     if (response.statusCode == 401) {
-      SessionService.logout();
+      await SessionService.logout();
+      AppNavigator.goToLogin();
+
       throw ApiException(
         'Session habis, silakan login kembali',
         statusCode: 401,

@@ -15,10 +15,10 @@ class AuthResponse {
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
-      code: json["code"],
-      status: json["status"],
-      message: json["message"],
-      data: AuthData.fromJson(json),
+      code: json["code"] ?? 0,
+      status: json["status"]?.toString() ?? '',
+      message: json["message"]?.toString() ?? '',
+      data: AuthData.fromJson(json["data"] ?? json),
     );
   }
 }
