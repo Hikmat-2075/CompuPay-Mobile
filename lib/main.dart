@@ -1,7 +1,5 @@
-
-import 'package:compupay_mobile/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:compupay_mobile/screens/home/home_screen.dart'; // sesuaikan path kamu
 
 void main() {
   runApp(const MyApp());
@@ -9,15 +7,17 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      title: 'CompuPay',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6C4AF2)),
+      ),
+      home: const HomeScreen(),
     );
   }
 }
