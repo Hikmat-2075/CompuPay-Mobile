@@ -88,6 +88,33 @@ class ApiService {
     }
   }
 
+  static Future<dynamic> patch(
+    String endpoint,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      _validateBaseUrl();
+
+      final token = await SessionService.getToken();
+      final uri = Uri.parse('$baseUrl$endpoint');
+
+      final response = await http
+          .patch(uri, headers: _headers(token), body: jsonEncode(data))
+          .timeout(const Duration(seconds: 20));
+
+      return _handleResponse(response);
+    } on SocketException {
+      throw ApiException('Tidak dapat terhubung ke server');
+    } on TimeoutException {
+      throw ApiException('Server terlalu lama merespon');
+    } on FormatException {
+      throw ApiException('Format URL tidak valid');
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Terjadi kesalahan saat mengubah data');
+    }
+  }
+
   static Future<dynamic> delete(String endpoint) async {
     try {
       _validateBaseUrl();

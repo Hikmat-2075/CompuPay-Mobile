@@ -4,6 +4,7 @@ import 'package:compupay_mobile/screens/login/login_screen.dart';
 import 'package:compupay_mobile/core/services/profile_service.dart';
 import 'package:compupay_mobile/core/widgets/profile_info_card.dart';
 import 'package:compupay_mobile/core/widgets/settings_tile.dart';
+import 'package:compupay_mobile/screens/notification/notification_screen.dart';
 import 'package:compupay_mobile/shared/widgets/app_header.dart';
 
 import 'package:flutter/material.dart';
@@ -217,9 +218,20 @@ class ProfileScreen extends StatelessWidget {
 
                 SettingsTile(
                   icon: Icons.notifications_none_rounded,
+
                   title: 'Notifications',
-                  subtitle: 'Manage payroll and leave alerts',
-                  onTap: () {},
+
+                  subtitle: 'Payroll status updates and alerts',
+
+                  onTap: () {
+                    Navigator.push(
+                      context,
+
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationScreen(),
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 14),

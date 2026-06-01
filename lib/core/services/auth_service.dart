@@ -1,6 +1,7 @@
 import 'package:compupay_mobile/core/config/api_config.dart';
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
 import 'package:compupay_mobile/core/services/api_service.dart';
+import 'package:compupay_mobile/core/services/notification_service.dart';
 import 'package:compupay_mobile/core/services/profile_service.dart';
 import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/models/auth_response.dart';
@@ -26,6 +27,8 @@ class AuthService {
         position: authResponse.data.position,
       );
 
+      await _saveNotificationTokenSafely();
+
       await fetchAndSaveProfile();
 
       return authResponse;
@@ -33,6 +36,15 @@ class AuthService {
       rethrow;
     } catch (_) {
       throw ApiException('Gagal memproses data login');
+    }
+  }
+
+  static Future<void> _saveNotificationTokenSafely() async {
+    try {
+      await NotificationService.saveDeviceToken();
+    } catch (_) {
+      // Jangan gagalkan login hanya karena token notifikasi gagal disimpan.
+      // User tetap boleh masuk aplikasi.
     }
   }
 
