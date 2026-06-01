@@ -1,3 +1,4 @@
+import 'package:compupay_mobile/core/utils/jwt_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionService {
@@ -96,7 +97,16 @@ class SessionService {
   // ======================
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_accessKey) != null;
+    final token = prefs.getString(_accessKey);
+    if (token == null || token.trim().isEmpty) {
+      return false;
+    }
+    final isExpired = JwtUtils.isExpired(token);
+    if (isExpired) {
+      await logout();
+      return false;
+    }
+    return true;
   }
 
   // ======================

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/models/profile_model.dart';
 import 'package:compupay_mobile/screens/login/login_screen.dart';
@@ -5,8 +6,9 @@ import 'package:compupay_mobile/core/services/profile_service.dart';
 import 'package:compupay_mobile/core/widgets/profile_info_card.dart';
 import 'package:compupay_mobile/core/widgets/settings_tile.dart';
 import 'package:compupay_mobile/screens/profile/edit_profile_screen.dart';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:compupay_mobile/screens/notification/notification_screen.dart';
+import 'package:compupay_mobile/shared/widgets/app_header.dart';
 import 'package:flutter/material.dart';
 import 'package:compupay_mobile/core/config/api_config.dart';
 
@@ -79,19 +81,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
 
-      appBar: AppBar(
+      appBar: AppHeader(
+        title: 'Profile',
+        showBackButton: false,
         backgroundColor: const Color(0xFFF5F5F7),
-        elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            color: Color(0xFF6B3EEA),
-            fontWeight: FontWeight.w700,
-            fontSize: 24,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFF64748B)),
+        foregroundColor: const Color(0xFF6B3EEA),
+        titleFontSize: 24,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: Color(0xFF64748B)),
@@ -312,9 +307,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 SettingsTile(
                   icon: Icons.notifications_none_rounded,
+
                   title: 'Notifications',
-                  subtitle: 'Manage payroll and leave alerts',
-                  onTap: () {},
+
+                  subtitle: 'Payroll status updates and alerts',
+
+                  onTap: () {
+                    Navigator.push(
+                      context,
+
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationScreen(),
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 36),

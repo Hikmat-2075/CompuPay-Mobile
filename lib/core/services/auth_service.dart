@@ -1,9 +1,11 @@
 import 'package:compupay_mobile/core/config/api_config.dart';
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
 import 'package:compupay_mobile/core/services/api_service.dart';
+import 'package:compupay_mobile/core/services/notification_service.dart';
 import 'package:compupay_mobile/core/services/profile_service.dart';
 import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/models/auth_response.dart';
+import 'package:compupay_mobile/models/forgot_password_models.dart';
 
 class AuthService {
   static Future<AuthResponse> login(String email, String password) async {
@@ -25,6 +27,8 @@ class AuthService {
         position: authResponse.data.position,
       );
 
+      await _saveNotificationTokenSafely();
+
       await fetchAndSaveProfile();
 
       return authResponse;
@@ -32,6 +36,15 @@ class AuthService {
       rethrow;
     } catch (_) {
       throw ApiException('Gagal memproses data login');
+    }
+  }
+
+  static Future<void> _saveNotificationTokenSafely() async {
+    try {
+      await NotificationService.saveDeviceToken();
+    } catch (_) {
+      // Jangan gagalkan login hanya karena token notifikasi gagal disimpan.
+      // User tetap boleh masuk aplikasi.
     }
   }
 
@@ -111,5 +124,48 @@ class AuthService {
 
   static String _normalizeKey(String value) {
     return value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+  }
+
+  static Future<void> forgetPassword(String email) async {
+    try {
+      await ApiService.post(ApiConfig.forgetPassword, {'email': email});
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      throw ApiException('Gagal mengirim OTP');
+    }
+  }
+
+  static Future<VerifyOtpResult> verifyOtp(String email, String otp) async {
+    try {
+      final response = await ApiService.post(ApiConfig.verifyOtp, {
+        'email': email,
+        'otp': otp,
+      });
+
+      return VerifyOtpResult.fromJson(response);
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      throw ApiException('Gagal verifikasi OTP');
+    }
+  }
+
+  static Future<void> resetPassword({
+    required String resetToken,
+    required String newPassword,
+    required String confirmationPassword,
+  }) async {
+    try {
+      await ApiService.post(ApiConfig.resetPassword, {
+        'reset_token': resetToken,
+        'new_password': newPassword,
+        'new_password_confirmation': confirmationPassword,
+      });
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      throw ApiException('Gagal reset password');
+    }
   }
 }
