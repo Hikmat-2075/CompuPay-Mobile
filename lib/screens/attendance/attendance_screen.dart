@@ -7,6 +7,7 @@ import 'package:compupay_mobile/screens/attendance/widgets/camera_photo_section.
 import 'package:compupay_mobile/screens/attendance/widgets/live_map_section.dart';
 import 'package:compupay_mobile/screens/attendance/widgets/location_status_section.dart';
 import 'package:compupay_mobile/screens/attendance/widgets/today_history_section.dart';
+import 'package:compupay_mobile/shared/widgets/app_alert.dart';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -107,14 +108,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       }
 
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      AppAlert.success(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Absensi berhasil')));
+        message: isCheckIn
+            ? 'Check in berhasil dikirim.'
+            : 'Check out berhasil dikirim.',
+      );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      AppAlert.error(
         context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+        message: e.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
@@ -130,68 +135,71 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AttendanceTopBar(onBack: () => Navigator.pop(context)),
-      body: RefreshIndicator(
-        onRefresh: () async => controller.refreshLocationAndToday(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _HeaderCard(isLoading: isLoading),
-              const SizedBox(height: 14),
-              LiveMapSection(
-                officeLatitude: cfg?.officeLatitude,
-                officeLongitude: cfg?.officeLongitude,
-                radius: cfg?.radius,
-                userPosition: controller.position,
-              ),
-              const SizedBox(height: 14),
-              if (error != null) ...[
-                _ErrorCard(message: error),
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: RefreshIndicator(
+          onRefresh: () async => controller.refreshLocationAndToday(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _HeaderCard(isLoading: isLoading),
                 const SizedBox(height: 14),
-              ],
-              LocationStatusSection(
-                insideRadius: controller.insideRadius,
-                distanceToOffice: controller.distanceToOffice,
-                radius: cfg?.radius,
-              ),
-              const SizedBox(height: 14),
-              CameraPhotoSection(
-                image: controller.photo,
-                imageBytes: controller.photoBytes,
-                enabled: controller.canTakeAttendancePhoto,
-                loading: controller.uploading,
-                onPickPhoto: controller.pickPhoto,
-              ),
-              const SizedBox(height: 14),
-              TodayHistorySection(attendance: today),
-              const SizedBox(height: 18),
-              if (today == null && !isLoading)
-                const _EmptyAttendanceCard()
-              else if (today != null && today.completed)
-                const _CompletedCard()
-              else if (today != null) ...[
-                TakeAttendancePhotoButton(
-                  label: 'Check In',
-                  icon: Icons.login_rounded,
-                  enabled: canCheckIn && canUseAttendance,
-                  loading: controller.uploading && canCheckIn,
-                  onPressed: () {
-                    _onActionPressed(true);
-                  },
+                LiveMapSection(
+                  officeLatitude: cfg?.officeLatitude,
+                  officeLongitude: cfg?.officeLongitude,
+                  radius: cfg?.radius,
+                  userPosition: controller.position,
                 ),
-                const SizedBox(height: 12),
-                TakeAttendancePhotoButton(
-                  label: 'Check Out',
-                  icon: Icons.logout_rounded,
-                  enabled: canCheckOut && canUseAttendance,
-                  loading: controller.uploading && canCheckOut,
-                  onPressed: () => _onActionPressed(false),
+                const SizedBox(height: 14),
+                if (error != null) ...[
+                  _ErrorCard(message: error),
+                  const SizedBox(height: 14),
+                ],
+                LocationStatusSection(
+                  insideRadius: controller.insideRadius,
+                  distanceToOffice: controller.distanceToOffice,
+                  radius: cfg?.radius,
                 ),
+                const SizedBox(height: 14),
+                CameraPhotoSection(
+                  image: controller.photo,
+                  imageBytes: controller.photoBytes,
+                  enabled: controller.canTakeAttendancePhoto,
+                  loading: controller.uploading,
+                  onPickPhoto: controller.pickPhoto,
+                ),
+                const SizedBox(height: 14),
+                TodayHistorySection(attendance: today),
+                const SizedBox(height: 18),
+                if (today == null && !isLoading)
+                  const _EmptyAttendanceCard()
+                else if (today != null && today.completed)
+                  const _CompletedCard()
+                else if (today != null) ...[
+                  TakeAttendancePhotoButton(
+                    label: 'Check In',
+                    icon: Icons.login_rounded,
+                    enabled: canCheckIn && canUseAttendance,
+                    loading: controller.uploading && canCheckIn,
+                    onPressed: () {
+                      _onActionPressed(true);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TakeAttendancePhotoButton(
+                    label: 'Check Out',
+                    icon: Icons.logout_rounded,
+                    enabled: canCheckOut && canUseAttendance,
+                    loading: controller.uploading && canCheckOut,
+                    onPressed: () => _onActionPressed(false),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

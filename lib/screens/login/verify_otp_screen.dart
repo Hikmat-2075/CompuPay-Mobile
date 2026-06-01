@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:compupay_mobile/core/controllers/auth_controller.dart';
 import 'package:compupay_mobile/screens/login/reset_password_screen.dart';
+import 'package:compupay_mobile/shared/widgets/app_alert.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
   final String email;
@@ -33,9 +34,10 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     final otp = otpController.text.trim();
 
     if (otp.length != 6) {
-      ScaffoldMessenger.of(
+      AppAlert.warning(
         context,
-      ).showSnackBar(const SnackBar(content: Text('OTP harus 6 digit')));
+        message: 'OTP harus 6 digit.',
+      );
       return;
     }
 

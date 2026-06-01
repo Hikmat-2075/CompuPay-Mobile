@@ -8,6 +8,38 @@ enum AlertType {
 }
 
 class AppAlert {
+  static void success(
+    BuildContext context, {
+    String title = 'Berhasil',
+    required String message,
+  }) {
+    show(context, title: title, message: message, type: AlertType.success);
+  }
+
+  static void error(
+    BuildContext context, {
+    String title = 'Gagal',
+    required String message,
+  }) {
+    show(context, title: title, message: message, type: AlertType.error);
+  }
+
+  static void warning(
+    BuildContext context, {
+    String title = 'Peringatan',
+    required String message,
+  }) {
+    show(context, title: title, message: message, type: AlertType.warning);
+  }
+
+  static void info(
+    BuildContext context, {
+    String title = 'Informasi',
+    required String message,
+  }) {
+    show(context, title: title, message: message, type: AlertType.info);
+  }
+
   static void show(
     BuildContext context, {
     required String title,
@@ -39,7 +71,7 @@ class AppAlert {
         break;
     }
 
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.of(context, rootOverlay: true);
 
     late OverlayEntry entry;
 
@@ -101,9 +133,10 @@ class AppAlert {
 
     overlay.insert(entry);
 
-    Future.delayed(
-      const Duration(seconds: 3),
-      () => entry.remove(),
-    );
+    Future.delayed(const Duration(seconds: 3), () {
+      if (entry.mounted) {
+        entry.remove();
+      }
+    });
   }
 }
