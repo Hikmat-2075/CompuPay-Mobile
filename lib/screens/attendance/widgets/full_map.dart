@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:compupay_mobile/shared/widgets/app_header.dart';
 
 class FullMapPage extends StatelessWidget {
   final LatLng? location;
@@ -12,9 +13,7 @@ class FullMapPage extends StatelessWidget {
     final LatLng defaultLocation = LatLng(-6.200000, 106.816666);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Live Location"),
-      ),
+      appBar: const AppHeader(title: 'Live Location'),
       body: FlutterMap(
         options: MapOptions(
           initialCenter: location ?? defaultLocation,

@@ -15,7 +15,7 @@ class BottomNavBar extends StatelessWidget {
     return SafeArea(
       child: Container(
         height: 80,
-        padding: const EdgeInsets.symmetric(horizontal: 37),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -31,39 +31,52 @@ class BottomNavBar extends StatelessWidget {
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _NavItem(
-              label: "HOME",
-              icon: Icons.home_outlined,
-              activeIcon: Icons.home,
-              isActive: currentIndex == 0,
-              onTap: () => onTap(0),
+            Expanded(
+              child: _NavItem(
+                label: "HOME",
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                isActive: currentIndex == 0,
+                onTap: () => onTap(0),
+              ),
             ),
-
-            _NavItem(
-              label: "ATTENDANCE",
-              icon: Icons.event_note_outlined,
-              activeIcon: Icons.event_note,
-              isActive: currentIndex == 1,
-              onTap: () => onTap(1),
+            Expanded(
+              child: _NavItem(
+                label: "REQUEST",
+                icon: Icons.assignment_outlined,
+                activeIcon: Icons.assignment,
+                isActive: currentIndex == 1,
+                onTap: () => onTap(1),
+              ),
             ),
-
-            _NavItem(
-              label: "PAYSLIP",
-              icon: Icons.receipt_long_outlined,
-              activeIcon: Icons.receipt_long,
-              isActive: currentIndex == 2,
-              onTap: () => onTap(2),
+            Expanded(
+              child: _NavItem(
+                label: "ATTENDANCE",
+                icon: Icons.event_available_outlined,
+                activeIcon: Icons.event_available,
+                isActive: currentIndex == 2,
+                onTap: () => onTap(2),
+              ),
             ),
-
-            _NavItem(
-              label: "PROFILE",
-              icon: Icons.person_outline,
-              activeIcon: Icons.person,
-              isActive: currentIndex == 3,
-              onTap: () => onTap(3),
+            Expanded(
+              child: _NavItem(
+                label: "PAYSLIP",
+                icon: Icons.receipt_long_outlined,
+                activeIcon: Icons.receipt_long,
+                isActive: currentIndex == 3,
+                onTap: () => onTap(3),
+              ),
+            ),
+            Expanded(
+              child: _NavItem(
+                label: "PROFILE",
+                icon: Icons.person_outline,
+                activeIcon: Icons.person,
+                isActive: currentIndex == 4,
+                onTap: () => onTap(4),
+              ),
             ),
           ],
         ),
@@ -95,6 +108,7 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             isActive ? activeIcon : icon,

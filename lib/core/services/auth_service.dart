@@ -1,28 +1,171 @@
-import 'package:compupay_mobile/core/services/api_service.dart';
 import 'package:compupay_mobile/core/config/api_config.dart';
-import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
+import 'package:compupay_mobile/core/services/api_service.dart';
+import 'package:compupay_mobile/core/services/notification_service.dart';
+import 'package:compupay_mobile/core/services/profile_service.dart';
+import 'package:compupay_mobile/core/services/session_service.dart';
 import 'package:compupay_mobile/models/auth_response.dart';
+import 'package:compupay_mobile/models/forgot_password_models.dart';
 
 class AuthService {
   static Future<AuthResponse> login(String email, String password) async {
     try {
       final response = await ApiService.post(ApiConfig.login, {
-        "email": email,
-        "password": password,
+        'email': email,
+        'password': password,
       });
 
       final authResponse = AuthResponse.fromJson(response);
 
-      // simpan token
       await SessionService.saveToken(authResponse.data.accessToken);
       await SessionService.saveRefreshToken(authResponse.data.refreshToken);
+
+      await SessionService.saveUserProfile(
+        employeeName: authResponse.data.employeeName,
+        employeeId: authResponse.data.employeeId,
+        role: authResponse.data.role,
+        position: authResponse.data.position,
+      );
+
+      await _saveNotificationTokenSafely();
+
+      await fetchAndSaveProfile();
 
       return authResponse;
     } on ApiException {
       rethrow;
-    } catch (e) {
-      throw ApiException("Gagal memproses data login");
+    } catch (_) {
+      throw ApiException('Gagal memproses data login');
+    }
+  }
+
+  static Future<void> _saveNotificationTokenSafely() async {
+    try {
+      await NotificationService.saveDeviceToken();
+    } catch (_) {
+      // Jangan gagalkan login hanya karena token notifikasi gagal disimpan.
+      // User tetap boleh masuk aplikasi.
+    }
+  }
+
+  static Future<void> fetchAndSaveProfile() async {
+    try {
+      final profile = await ProfileService.getProfile();
+
+      final fullName = profile.name;
+
+      final employeeNumber = profile.employeeId;
+
+      final role = profile.role;
+
+      final position = profile.position;
+
+      await SessionService.saveUserProfile(
+        employeeName: fullName,
+        employeeId: employeeNumber,
+        role: role,
+        position: position,
+      );
+    } catch (_) {
+      // Jangan gagalkan login hanya karena profile gagal dimuat.
+      // Token tetap sudah tersimpan.
+    }
+  }
+
+  static String? _getString(Map<String, dynamic> map, List<String> keys) {
+    final normalizedKeys = keys.map(_normalizeKey).toSet();
+
+    for (final entry in map.entries) {
+      final key = _normalizeKey(entry.key);
+
+      if (normalizedKeys.contains(key)) {
+        final value = entry.value?.toString().trim();
+
+        if (value != null && value.isNotEmpty && value != 'null') {
+          return value;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  static String? _getNestedString(Map<String, dynamic> map, List<String> keys) {
+    for (final key in keys) {
+      if (key.contains('.')) {
+        final parts = key.split('.');
+        dynamic current = map;
+
+        for (final part in parts) {
+          if (current is Map) {
+            current = current[part];
+          } else {
+            current = null;
+            break;
+          }
+        }
+
+        final value = current?.toString().trim();
+
+        if (value != null && value.isNotEmpty && value != 'null') {
+          return value;
+        }
+      } else {
+        final value = _getString(map, [key]);
+
+        if (value != null && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  static String _normalizeKey(String value) {
+    return value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+  }
+
+  static Future<void> forgetPassword(String email) async {
+    try {
+      await ApiService.post(ApiConfig.forgetPassword, {'email': email});
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      throw ApiException('Gagal mengirim OTP');
+    }
+  }
+
+  static Future<VerifyOtpResult> verifyOtp(String email, String otp) async {
+    try {
+      final response = await ApiService.post(ApiConfig.verifyOtp, {
+        'email': email,
+        'otp': otp,
+      });
+
+      return VerifyOtpResult.fromJson(response);
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      throw ApiException('Gagal verifikasi OTP');
+    }
+  }
+
+  static Future<void> resetPassword({
+    required String resetToken,
+    required String newPassword,
+    required String confirmationPassword,
+  }) async {
+    try {
+      await ApiService.post(ApiConfig.resetPassword, {
+        'reset_token': resetToken,
+        'new_password': newPassword,
+        'new_password_confirmation': confirmationPassword,
+      });
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      throw ApiException('Gagal reset password');
     }
   }
 }

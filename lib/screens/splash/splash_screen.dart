@@ -1,3 +1,5 @@
+import 'package:compupay_mobile/core/services/session_service.dart';
+import 'package:compupay_mobile/navigation/main_navigation.dart';
 import 'package:compupay_mobile/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -12,14 +14,23 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    checkSession();
+  }
 
-    // Delay 3 detik lalu pindah ke LoginScreen
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    });
+  Future<void> checkSession() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    final isLoggedIn = await SessionService.isLoggedIn();
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            isLoggedIn ? const MainNavigation() : const LoginScreen(),
+      ),
+    );
   }
 
   @override
@@ -47,9 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 20),
-
           RichText(
             text: const TextSpan(
               style: TextStyle(color: Colors.black, fontSize: 48),
@@ -79,9 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 10),
-
           const Text(
             'FINANCIAL CONCIERGE',
             style: TextStyle(

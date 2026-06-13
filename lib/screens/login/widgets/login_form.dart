@@ -5,6 +5,8 @@ import 'package:compupay_mobile/screens/login/widgets/email_field.dart';
 import 'package:compupay_mobile/screens/login/widgets/password_field.dart';
 import 'package:compupay_mobile/screens/login/widgets/login_button.dart';
 import 'package:compupay_mobile/navigation/main_navigation.dart';
+import 'package:compupay_mobile/screens/login/forgot_password_screen.dart';
+import 'package:compupay_mobile/shared/widgets/app_alert.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -36,8 +38,9 @@ class _LoginFormState extends State<LoginForm> {
 
   void handleLogin() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email dan password wajib diisi")),
+      AppAlert.warning(
+        context,
+        message: 'Email dan password wajib diisi.',
       );
       return;
     }
@@ -46,22 +49,10 @@ class _LoginFormState extends State<LoginForm> {
       isLoading = true;
     });
 
-    // ============================
-    // API LOGIN (DI-COMMENT)
-    // ============================
-
-    /*
-  await authController.login(
-    emailController.text,
-    passwordController.text,
-  );
-  */
-
-    // ============================
-    // MOCK LOGIN (langsung pindah page)
-    // ============================
-
-    await Future.delayed(const Duration(seconds: 1));
+    final success = await authController.login(
+      emailController.text.trim(),
+      passwordController.text,
+    );
 
     if (!mounted) return;
 
@@ -69,10 +60,12 @@ class _LoginFormState extends State<LoginForm> {
       isLoading = false;
     });
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainNavigation()),
-    );
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+      );
+    }
   }
 
   @override
@@ -95,7 +88,14 @@ class _LoginFormState extends State<LoginForm> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ForgotPasswordScreen(),
+                    ),
+                  );
+                },
                 child: const Text("Forgot Password?"),
               ),
             ),
