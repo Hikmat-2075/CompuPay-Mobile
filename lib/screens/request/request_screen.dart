@@ -1,7 +1,9 @@
+import 'package:compupay_mobile/core/config/api_config.dart';
 import 'package:compupay_mobile/core/exceptions/api_exception.dart';
 import 'package:compupay_mobile/core/services/leave_request_service.dart';
 import 'package:compupay_mobile/models/leave_request_models.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'request_form_screen.dart';
 
@@ -510,6 +512,8 @@ class _RequestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = _normalizeStatus(item.status);
     final statusColor = _statusColor(status);
+    final attachment = _normalizeAttachment(item.attachment);
+    final hasAttachment = attachment != null;
     final accentColor = item.type == LeaveRequestType.sakit
         ? const Color(0xFFEA580C)
         : const Color(0xFF6B3EEA);
@@ -601,25 +605,50 @@ class _RequestCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                item.attachment == null || item.attachment!.isEmpty
-                    ? Icons.attach_file_rounded
-                    : Icons.task_rounded,
+                hasAttachment ? Icons.task_rounded : Icons.attach_file_rounded,
                 size: 17,
-                color: const Color(0xFF9CA3AF),
+                color: hasAttachment
+                    ? const Color(0xFF6B3EEA)
+                    : const Color(0xFF9CA3AF),
               ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  item.attachment == null || item.attachment!.isEmpty
-                      ? 'Tidak ada lampiran'
-                      : 'Lampiran tersedia',
-                  style: const TextStyle(
-                    color: Color(0xFF6B7280),
+                  hasAttachment
+                      ? _attachmentFileName(attachment)
+                      : 'Tidak ada lampiran',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: hasAttachment
+                        ? const Color(0xFF4C1D95)
+                        : const Color(0xFF6B7280),
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
+              if (hasAttachment) ...[
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () => _openAttachment(context, attachment),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                  label: const Text('Lihat'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF6B3EEA),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
               if (item.createdAt != null)
                 Text(
                   _formatShortDate(item.createdAt!),
@@ -901,4 +930,63 @@ String _formatShortDate(DateTime value) {
   ];
 
   return '${value.day.toString().padLeft(2, '0')} ${months[value.month - 1]} ${value.year}';
+}
+
+String? _normalizeAttachment(String? value) {
+  final attachment = value?.trim();
+
+  if (attachment == null || attachment.isEmpty || attachment == 'null') {
+    return null;
+  }
+
+  return attachment;
+}
+
+String _attachmentFileName(String attachment) {
+  final uri = Uri.tryParse(attachment);
+  final path = uri == null || uri.path.isEmpty ? attachment : uri.path;
+  final normalizedPath = path.replaceAll('\\', '/');
+  final parts = normalizedPath
+      .split('/')
+      .where((part) => part.isNotEmpty)
+      .toList(growable: false);
+
+  return parts.isEmpty ? 'Lampiran tersedia' : parts.last;
+}
+
+Future<void> _openAttachment(BuildContext context, String attachment) async {
+  final uri = _attachmentUri(attachment);
+
+  if (uri == null ||
+      !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (!context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Lampiran tidak bisa dibuka.')),
+    );
+  }
+}
+
+Uri? _attachmentUri(String attachment) {
+  final parsed = Uri.tryParse(attachment);
+
+  if (parsed != null && parsed.hasScheme) {
+    return parsed;
+  }
+
+  final baseUrl = ApiConfig.baseUrl.trim();
+  if (baseUrl.isEmpty) {
+    return parsed;
+  }
+
+  final normalizedBase = baseUrl.endsWith('/')
+      ? baseUrl.substring(0, baseUrl.length - 1)
+      : baseUrl;
+  final normalizedPath = attachment.startsWith('/')
+      ? attachment
+      : '/$attachment';
+
+  return Uri.tryParse('$normalizedBase$normalizedPath');
 }
