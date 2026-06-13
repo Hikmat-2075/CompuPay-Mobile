@@ -178,6 +178,10 @@ class ApiService {
             contentType: MediaType('image', 'jpeg'),
           ),
         );
+      } else if (file != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(fileField, file.path),
+        );
       }
 
       final streamedResponse = await request.send().timeout(

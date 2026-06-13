@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'compupay-5dca1.firebasestorage.app',
     measurementId: 'G-84F35Z1GX0',
   );
+
 }

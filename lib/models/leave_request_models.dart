@@ -66,7 +66,7 @@ class LeaveRequestItem {
       startDate: startDate ?? DateTime.now(),
       endDate: endDate ?? DateTime.now(),
       reason: (json['reason'] ?? '').toString(),
-      attachment: _parseNullableString(json['attachment']),
+      attachment: _parseAttachment(json),
       status: (json['status'] ?? 'PENDING').toString(),
       createdAt: _parseDate(json['created_at'] ?? json['createdAt']),
     );
@@ -196,6 +196,50 @@ String? _parseNullableString(dynamic value) {
   }
 
   return rawValue;
+}
+
+String? _parseAttachment(Map<String, dynamic> json) {
+  final possibleValues = [
+    json['attachment'],
+    json['attachment_url'],
+    json['attachmentUrl'],
+    json['attachment_uri'],
+    json['attachmentUri'],
+    json['file'],
+    json['file_url'],
+    json['fileUrl'],
+    json['document'],
+    json['document_url'],
+    json['documentUrl'],
+  ];
+
+  for (final value in possibleValues) {
+    final map = asLeaveRequestMap(value);
+    if (map != null) {
+      for (final key in const [
+        'url',
+        'uri',
+        'path',
+        'file',
+        'file_url',
+        'fileUrl',
+        'filename',
+        'name',
+      ]) {
+        final nestedValue = _parseNullableString(map[key]);
+        if (nestedValue != null) {
+          return nestedValue;
+        }
+      }
+    }
+
+    final parsed = _parseNullableString(value);
+    if (parsed != null) {
+      return parsed;
+    }
+  }
+
+  return null;
 }
 
 String _formatDateOnly(DateTime value) {
