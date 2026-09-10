@@ -33,6 +33,11 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Native build output not covered by /build/ above
+android/build/
+android/.gradle/
+ios/build/
+
 # Symbolication related
 app.*.symbols
 
